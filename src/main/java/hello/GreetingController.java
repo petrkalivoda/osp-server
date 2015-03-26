@@ -22,7 +22,7 @@ public class GreetingController {
 		processText(text);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/counter", produces = MediaType.TEXT_PLAIN_VALUE)
+	@RequestMapping(method = RequestMethod.GET, value = "/count", produces = MediaType.TEXT_PLAIN_VALUE)
 	public String getCounter() throws Exception {
 		return String.valueOf(resetCounter());
 	}
