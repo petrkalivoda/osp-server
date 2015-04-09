@@ -1,8 +1,8 @@
 package hello;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.http.MediaType;
@@ -15,11 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/osp/myserver")
 public class GreetingController {
 	private final AtomicLong counter = new AtomicLong();
-	private final Set<String> strings = new HashSet<String>();
+	private final Map<String, Boolean> strings = new ConcurrentHashMap<String, Boolean>();
 
 	@RequestMapping(method = RequestMethod.POST, value = "/data", consumes = MediaType.TEXT_PLAIN_VALUE)
-	public void acceptData(@RequestBody String text) throws Exception {
-		processText(text);
+	public void acceptData(@RequestBody String body) throws Exception {
+		processText(body);
+
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/count", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -28,23 +29,19 @@ public class GreetingController {
 	}
 
 	private void processText(String text) {
-		synchronized (this) {
-			StringTokenizer tok = new StringTokenizer(text);
-			while (tok.hasMoreTokens()) {
-				strings.add(tok.nextToken());
-			}
-
-			counter.set(strings.size());
+		StringTokenizer tok = new StringTokenizer(text);
+		while (tok.hasMoreTokens()) {
+			strings.put(tok.nextToken(), Boolean.TRUE);
 		}
+
+		counter.set(strings.size());
 	}
 
 	private long resetCounter() {
-		synchronized (this) {
-			long value = counter.get();
-			counter.set(0);
-			strings.clear();
-			return value;
-		}
+		long value = counter.get();
+		counter.set(0);
+		strings.clear();
+		return value;
 	}
 
 }
